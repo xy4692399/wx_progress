@@ -1,0 +1,76 @@
+# 服务器配置
+server:
+  port: 8087
+ # servlet:
+ #   context-path: /api
+# 4,5行注释掉可以开启拦截器
+
+
+# 数据库配置
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.10.144:3306/comment_center?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456  # 替换为你的数据库密码
+    hikari:
+      maximum-pool-size: 10  # 连接池最大连接数
+      minimum-idle: 5        # 连接池最小空闲连接数
+      idle-timeout: 300000   # 空闲连接超时时间(毫秒)
+      connection-timeout: 20000 # 连接超时时间(毫秒)
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'  # 匹配所有接口路径
+      packages-to-scan: org.goodbye.controller  # 替换为你的接口所在包名
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+# MyBatis-Plus配置
+mybatis-plus:
+  # 指定mapper.xml文件的位置
+  mapper-locations: classpath*:mapper/*.xml
+  # 指定实体类的包路径，用于别名
+  type-aliases-package: org.goodbye.entity
+  configuration:
+    # 开启驼峰命名转换
+    map-underscore-to-camel-case: true
+    # 日志配置，开发环境可以开启，生产环境关闭
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  # 全局配置
+  global-config:
+    db-config:
+      # 主键类型：自增
+      id-type: AUTO
+      # 逻辑删除字段名
+      logic-delete-field: is_deleted
+      # 逻辑删除值（已删除）
+      logic-delete-value: 1
+      # 逻辑未删除值
+      logic-not-delete-value: 0
+    banner: false  # 关闭MyBatis-Plus启动banner
+
+
+# 微信小程序配置
+wx:
+  miniapp:
+    appid: yourAppid # 替换为你的微信小程序AppID
+    secret: yourSecret # 替换为你的微信小程序AppSecret
+
+# 阿里云OSS配置
+aliyun:
+  oss:
+    endpoint: oss-cn-beijing.aliyuncs.com # 替换为你的OSS endpoint
+    accessKeyId: yourAccessKeyId # 替换为你的AccessKeyId
+    accessKeySecret: yourAccessKeySecret # 替换为你的AccessKeySecret
+    bucketName: yourBucketName # 替换为你的BucketName
