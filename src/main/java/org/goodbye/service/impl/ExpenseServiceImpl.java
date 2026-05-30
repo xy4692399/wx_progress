@@ -5,6 +5,7 @@ import org.goodbye.common.dto.ExpenseRecordDTO;
 import org.goodbye.entity.ExpenseRecord;
 import org.goodbye.mapper.ExpenseRecordMapper;
 import org.goodbye.service.ExpenseService;
+import org.goodbye.service.IngredientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Autowired
     private ExpenseRecordMapper expenseRecordMapper;
+
+    @Autowired
+    private IngredientService ingredientService;
 
     @Override
     public ExpenseRecord addExpense(String userId, ExpenseRecordDTO dto) {
@@ -94,6 +98,12 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public BigDecimal getTotalExpense(String userId, LocalDate date) {
+        BigDecimal expenseTotal = getExpenseTotalByDate(userId, date);
+        BigDecimal ingredientTotal = ingredientService.getTotalIngredientCost(userId, date, date);
+        return expenseTotal.add(ingredientTotal);
+    }
+
+    private BigDecimal getExpenseTotalByDate(String userId, LocalDate date) {
         List<ExpenseRecord> records = getExpensesByDate(userId, date);
         return records.stream()
                 .map(ExpenseRecord::getAmount)
@@ -102,6 +112,12 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public BigDecimal getTotalExpenseByDateRange(String userId, LocalDate startDate, LocalDate endDate) {
+        BigDecimal expenseTotal = getExpenseTotalByDateRangeInternal(userId, startDate, endDate);
+        BigDecimal ingredientTotal = ingredientService.getTotalIngredientCost(userId, startDate, endDate);
+        return expenseTotal.add(ingredientTotal);
+    }
+
+    private BigDecimal getExpenseTotalByDateRangeInternal(String userId, LocalDate startDate, LocalDate endDate) {
         List<ExpenseRecord> records = getExpensesByDateRange(userId, startDate, endDate);
         return records.stream()
                 .map(ExpenseRecord::getAmount)
@@ -110,6 +126,12 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public BigDecimal getIngredientCostByDateRange(String userId, LocalDate startDate, LocalDate endDate) {
+        BigDecimal expenseIngredientCost = getExpenseIngredientCostByDateRange(userId, startDate, endDate);
+        BigDecimal ingredientCost = ingredientService.getTotalIngredientCost(userId, startDate, endDate);
+        return expenseIngredientCost.add(ingredientCost);
+    }
+
+    private BigDecimal getExpenseIngredientCostByDateRange(String userId, LocalDate startDate, LocalDate endDate) {
         List<ExpenseRecord> records = getExpensesByDateRange(userId, startDate, endDate);
         return records.stream()
                 .filter(r -> INGREDIENT_CATEGORIES.contains(r.getCategory()))
